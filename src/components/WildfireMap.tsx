@@ -216,7 +216,6 @@ const WildfireMap: React.FC<WildfireMapProps> = ({ onDataRefresh }) => {
 
   return isLoaded ? (
     <div className="flex flex-col w-full">
-      <h2 className="text-xl font-bold mb-3">산불 지도</h2>
       <div className="flex flex-wrap items-center gap-2 mb-2">
         <div className="flex items-center gap-2">
           <button 
