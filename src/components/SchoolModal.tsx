@@ -18,7 +18,8 @@ const SchoolModal: React.FC<SchoolModalProps> = ({ school, isAddMode, onClose, o
     address: '',
     contact: '',
     isClosed: false,
-    isOnlineClass: false
+    isOnlineClass: false,
+    note: ''
   };
 
   const [formData, setFormData] = useState<Omit<EducationalInstitution, 'id'>>(defaultFormState);
@@ -36,7 +37,8 @@ const SchoolModal: React.FC<SchoolModalProps> = ({ school, isAddMode, onClose, o
         address: school.address || '',
         contact: school.contact || '',
         isClosed: school.isClosed || false,
-        isOnlineClass: school.isOnlineClass || false
+        isOnlineClass: school.isOnlineClass || false,
+        note: school.note || ''
       });
     } else {
       setFormData(defaultFormState);
@@ -218,6 +220,7 @@ const SchoolModal: React.FC<SchoolModalProps> = ({ school, isAddMode, onClose, o
                   onChange={handleChange}
                   step="0.0001"
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  placeholder="주소를 입력하고 좌표검색 버튼을 누르세요."
                   required
                 />
               </div>
@@ -249,6 +252,21 @@ const SchoolModal: React.FC<SchoolModalProps> = ({ school, isAddMode, onClose, o
                 value={formData.contact}
                 onChange={handleChange}
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              />
+            </div>
+            
+            <div className="mb-4">
+              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="note">
+                특이사항 <span className="text-sm font-normal text-gray-500">(화재 발생, 지원요청 등)</span>
+              </label>
+              <textarea 
+                id="note"
+                name="note"
+                value={formData.note}
+                onChange={handleChange}
+                rows={3}
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                placeholder="화재 상황, 시설 보수, 지원 요청 등 참고할 사항을 입력해주세요."
               />
             </div>
             

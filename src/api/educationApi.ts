@@ -14,6 +14,7 @@ interface EducationalInstitutionData {
   is_online_class: boolean;
   created_at?: string;
   updated_at?: string;
+  note?: string;
 }
 
 export const fetchEducationalInstitutions = async (): Promise<EducationalInstitution[]> => {
@@ -28,7 +29,7 @@ export const fetchEducationalInstitutions = async (): Promise<EducationalInstitu
     
     const { data, error } = await supabase
       .from('educational_institutions')
-      .select('id, name, type, latitude, longitude, address, contact, is_closed, is_online_class, created_at, updated_at');
+      .select('id, name, type, latitude, longitude, address, contact, is_closed, is_online_class, created_at, updated_at, note');
     
     if (error) {
       console.error('교육기관 데이터를 가져오는 중 오류 발생:', error);
@@ -54,7 +55,8 @@ export const fetchEducationalInstitutions = async (): Promise<EducationalInstitu
       isClosed: item.is_closed,
       isOnlineClass: item.is_online_class,
       createdAt: item.created_at,
-      updatedAt: item.updated_at
+      updatedAt: item.updated_at,
+      note: item.note
     }));
   } catch (error) {
     console.error('교육기관 데이터를 가져오는 중 예외 발생:', error);
@@ -80,7 +82,8 @@ export const addEducationalInstitution = async (institution: Omit<EducationalIns
       address: institution.address,
       contact: institution.contact,
       is_closed: institution.isClosed || false,
-      is_online_class: institution.isOnlineClass || false
+      is_online_class: institution.isOnlineClass || false,
+      note: institution.note
     };
 
     const { data, error } = await supabase
@@ -109,7 +112,8 @@ export const addEducationalInstitution = async (institution: Omit<EducationalIns
       isClosed: data.is_closed,
       isOnlineClass: data.is_online_class,
       createdAt: data.created_at,
-      updatedAt: data.updated_at
+      updatedAt: data.updated_at,
+      note: data.note
     };
   } catch (error) {
     console.error('교육기관 추가 중 예외 발생:', error);
@@ -140,6 +144,7 @@ export const updateEducationalInstitution = async (
     if (updates.contact) supabaseData.contact = updates.contact;
     if (updates.isClosed !== undefined) supabaseData.is_closed = updates.isClosed;
     if (updates.isOnlineClass !== undefined) supabaseData.is_online_class = updates.isOnlineClass;
+    if (updates.note !== undefined) supabaseData.note = updates.note;
 
     const { error } = await supabase
       .from('educational_institutions')

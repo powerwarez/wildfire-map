@@ -29,10 +29,10 @@ const HomePage: React.FC = () => {
         <div className="flex-grow min-w-[65%]">
           <WildfireMap onDataRefresh={updateRefreshTime} />
         </div>
-        <div className="flex-1 min-w-[280px] max-w-xs flex flex-col sticky top-5 max-h-[calc(100vh-40px)]">
+        {/* <div className="flex-1 min-w-[280px] max-w-xs flex flex-col sticky top-5 max-h-[calc(100vh-40px)]">
           <WeatherInfo />
           <NewsSection />
-        </div>
+        </div> */}
       </div>
       <footer className="mt-8 text-center text-sm text-gray-500">
         <p>© 2025 산불 지도 서비스 | 데이터 출처: NASA FIRMS, 기상청 | 마지막 업데이트: {lastRefreshed}</p>

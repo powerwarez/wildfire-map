@@ -29,4 +29,5 @@ export interface EducationalInstitution {
   isOnlineClass?: boolean;
   createdAt?: string;
   updatedAt?: string;
+  note?: string;
 }

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { fetchEducationalInstitutions } from '../api/educationApi';
 import { EducationalInstitution, EducationalInstitutionType } from '../types';
-import SchoolModal from './SchoolModal';
+import SchoolModal from './SchoolModal.jsx';
 
 // 캐시의 유효 시간 (5분)
 const CACHE_EXPIRY_TIME = 5 * 60 * 1000;
@@ -224,7 +224,14 @@ const SchoolList: React.FC = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {schools.map((school) => (
+          {schools
+            .slice()
+            .sort((a, b) => {
+              const dateA = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
+              const dateB = b.updatedAt ? new Date(b.updatedAt).getTime() : 0;
+              return dateB - dateA; // 내림차순 정렬 (최신이 위로)
+            })
+            .map((school) => (
             <div 
               key={school.id} 
               className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
@@ -241,6 +248,15 @@ const SchoolList: React.FC = () => {
                 </div>
                 <h2 className="text-xl font-semibold mt-3 mb-2">{school.name}</h2>
                 <p className="text-gray-600 text-sm mb-4">{school.address}</p>
+                
+                {/* 특이사항 표시 */}
+                {school.note && (
+                  <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+                    <p className="text-sm text-yellow-800 font-medium mb-1">특이사항</p>
+                    <p className="text-sm text-gray-600">{school.note}</p>
+                  </div>
+                )}
+                
                 <div className="flex justify-between text-sm text-gray-500">
                   <div className="flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">

@@ -426,6 +426,14 @@ const WildfireMap: React.FC<WildfireMapProps> = ({ onDataRefresh }) => {
                       <span className="text-green-600 font-medium">정상 운영</span>
                     )}
                   </p>
+                  
+                  {selectedInstitution.note && (
+                    <div className="my-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-sm">
+                      <p className="font-semibold text-yellow-800 mb-1">특이사항:</p>
+                      <p className="text-gray-700">{selectedInstitution.note}</p>
+                    </div>
+                  )}
+                  
                   <p className="my-1 text-sm">
                     <span className="font-semibold">위치 정보: </span>
                     <span className="text-gray-700">
