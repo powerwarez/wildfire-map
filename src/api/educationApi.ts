@@ -73,6 +73,9 @@ export const addEducationalInstitution = async (institution: Omit<EducationalIns
       throw new Error('데이터베이스 연결에 실패했습니다.');
     }
     
+    // 현재 시간
+    const currentTime = new Date().toISOString();
+    
     // Supabase에 맞게 데이터 변환
     const supabaseData = {
       name: institution.name,
@@ -83,7 +86,9 @@ export const addEducationalInstitution = async (institution: Omit<EducationalIns
       contact: institution.contact,
       is_closed: institution.isClosed || false,
       is_online_class: institution.isOnlineClass || false,
-      note: institution.note
+      note: institution.note,
+      created_at: currentTime,
+      updated_at: currentTime
     };
 
     const { data, error } = await supabase
@@ -145,6 +150,9 @@ export const updateEducationalInstitution = async (
     if (updates.isClosed !== undefined) supabaseData.is_closed = updates.isClosed;
     if (updates.isOnlineClass !== undefined) supabaseData.is_online_class = updates.isOnlineClass;
     if (updates.note !== undefined) supabaseData.note = updates.note;
+    
+    // 현재 시간을 updated_at 필드에 설정
+    supabaseData.updated_at = new Date().toISOString();
 
     const { error } = await supabase
       .from('educational_institutions')
