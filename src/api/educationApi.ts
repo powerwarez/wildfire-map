@@ -1,6 +1,21 @@
 import { EducationalInstitution, EducationalInstitutionType } from '../types';
 import { supabase } from '../lib/supabase';
 
+// 데이터 항목 타입 정의
+interface EducationalInstitutionData {
+  id: string;
+  name: string;
+  type: string;
+  latitude: number;
+  longitude: number;
+  address: string;
+  contact?: string;
+  is_closed: boolean;
+  is_online_class: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export const fetchEducationalInstitutions = async (): Promise<EducationalInstitution[]> => {
   try {
     console.log('Supabase 교육기관 데이터 요청 시작');
@@ -28,7 +43,7 @@ export const fetchEducationalInstitutions = async (): Promise<EducationalInstitu
     console.log(`Supabase에서 ${data.length}개의 교육기관 데이터 로드 완료`);
     
     // Supabase의 데이터를 EducationalInstitution 타입으로 변환
-    return data.map(item => ({
+    return (data as EducationalInstitutionData[]).map(item => ({
       id: item.id || `temp-${Math.random().toString(36).substr(2, 9)}`,
       name: item.name,
       type: mapToEducationalInstitutionType(item.type),

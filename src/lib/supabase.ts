@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 // Supabase URL과 익명 키 가져오기
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -9,7 +9,8 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.error('Supabase URL 또는 Anon Key가 설정되지 않았습니다. .env 파일을 확인하세요.');
 }
 
-let supabase;
+// SupabaseClient 타입의 변수 선언
+let supabase: SupabaseClient | null = null;
 
 try {
   if (supabaseUrl && supabaseAnonKey) {

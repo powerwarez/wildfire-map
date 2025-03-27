@@ -13,8 +13,7 @@ interface NewsItem {
 const NewsSection: React.FC = () => {
   const [newsItems, setNewsItems] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [error, setError] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     const getWildfireNews = async () => {
@@ -51,7 +50,7 @@ const NewsSection: React.FC = () => {
         setNewsItems(formattedNews);
       } catch (err) {
         console.error('뉴스를 가져오는 중 오류 발생:', err);
-        setError('뉴스를 불러오지 못했습니다');
+        setErrorMessage('뉴스를 불러오지 못했습니다');
       } finally {
         setLoading(false);
       }
@@ -64,6 +63,10 @@ const NewsSection: React.FC = () => {
   const renderNewsItems = () => {
     if (loading) {
       return <p className="py-4 text-center text-gray-600">뉴스를 불러오는 중...</p>;
+    }
+    
+    if (errorMessage) {
+      return <p className="py-4 text-center text-red-600">{errorMessage}</p>;
     }
     
     if (newsItems.length === 0) {
