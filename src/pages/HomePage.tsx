@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import WildfireMap from '../components/WildfireMap';
-import WeatherInfo from '../components/WeatherInfo';
-import NewsSection from '../components/NewsSection';
+// import WeatherInfo from '../components/WeatherInfo';
+// import NewsSection from '../components/NewsSection';
 
 const HomePage: React.FC = () => {
   const [lastRefreshed, setLastRefreshed] = useState<string>('');
@@ -23,7 +23,7 @@ const HomePage: React.FC = () => {
   return (
     <div className="w-full">
       <header className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">산불 지도</h1>
+        <h1 className="text-3xl font-bold text-gray-800">산불 대응 현황도</h1>
       </header>
       <div className="flex flex-wrap gap-5 items-start">
         <div className="flex-grow min-w-[65%]">
@@ -35,7 +35,7 @@ const HomePage: React.FC = () => {
         </div> */}
       </div>
       <footer className="mt-8 text-center text-sm text-gray-500">
-        <p>© 2025 산불 지도 서비스 | 데이터 출처: NASA FIRMS, 기상청 | 마지막 업데이트: {lastRefreshed}</p>
+        <p>© 2025 산불 대응 현황도 | 데이터 출처: NASA FIRMS, 기상청 | 마지막 업데이트: {lastRefreshed}</p>
       </footer>
     </div>
   );
