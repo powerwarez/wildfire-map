@@ -27,4 +27,6 @@ export interface EducationalInstitution {
   contact?: string;
   isClosed?: boolean;
   isOnlineClass?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }

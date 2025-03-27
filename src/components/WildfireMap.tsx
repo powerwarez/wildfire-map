@@ -3,6 +3,7 @@ import { GoogleMap, useJsApiLoader, Marker, Circle, InfoWindow } from '@react-go
 import { fetchWildfireData } from '../api/wildfireApi';
 import { fetchEducationalInstitutions } from '../api/educationApi';
 import { WildfireData, EducationalInstitution, EducationalInstitutionType } from '../types';
+import SchoolModal from './SchoolModal';
 
 // 한국 중심으로 변경
 const center = {
@@ -45,10 +46,12 @@ const SCHOOL_ICONS = {
   }
 };
 
-const getEducationMarkerIcon = (type: EducationalInstitutionType) => {
-  const iconInfo = SCHOOL_ICONS[type] || SCHOOL_ICONS[EducationalInstitutionType.ELEMENTARY_SCHOOL];
+// 학교의 운영 상태에 따라 마커 아이콘 조정
+const getEducationMarkerIcon = (institution: EducationalInstitution) => {
+  const iconInfo = SCHOOL_ICONS[institution.type] || SCHOOL_ICONS[EducationalInstitutionType.ELEMENTARY_SCHOOL];
   
-  return {
+  // 기본 아이콘
+  const icon = {
     url: iconInfo.url,
     scaledSize: new google.maps.Size(
       iconInfo.scaledSize.width, 
@@ -60,10 +63,58 @@ const getEducationMarkerIcon = (type: EducationalInstitutionType) => {
       iconInfo.scaledSize.height / 2
     )
   };
+  
+  return icon;
 };
 
+// 유형에 따른 라벨 색상
 const getEducationLabelColor = (type: EducationalInstitutionType) => {
   return SCHOOL_ICONS[type]?.color || '#607D8B'; // 기본값은 회색
+};
+
+// 학교 운영 상태에 따른 마커 스타일
+const getStatusMarkerStyle = (institution: EducationalInstitution): google.maps.CircleOptions => {
+  if (institution.isClosed) {
+    return {
+      strokeColor: '#FF0000', // 빨간색 테두리
+      strokeWeight: 3,
+      fillColor: '#FF0000',
+      fillOpacity: 0.2
+    };
+  } else if (institution.isOnlineClass) {
+    return {
+      strokeColor: '#0000FF', // 파란색 테두리
+      strokeWeight: 3,
+      fillColor: '#0000FF',
+      fillOpacity: 0.2
+    };
+  }
+  // 기본값 반환
+  return {
+    strokeColor: '#00FF00', // 초록색 테두리
+    strokeWeight: 1,
+    fillColor: '#00FF00',
+    fillOpacity: 0.1
+  };
+};
+
+// 날짜 포맷팅 함수
+const formatDate = (dateString?: string): string => {
+  if (!dateString) return '정보 없음';
+  
+  try {
+    const date = new Date(dateString);
+    
+    // 유효한 날짜인지 확인
+    if (isNaN(date.getTime())) {
+      return '정보 없음';
+    }
+    
+    return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일 ${date.getHours()}시 ${date.getMinutes()}분`;
+  } catch (error) {
+    console.error('날짜 형식 변환 오류:', error);
+    return '정보 없음';
+  }
 };
 
 interface WildfireMapProps {
@@ -84,6 +135,7 @@ const WildfireMap: React.FC<WildfireMapProps> = ({ onDataRefresh }) => {
     EducationalInstitutionType.UNIVERSITY,
     EducationalInstitutionType.EDUCATION_OFFICE
   ]);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
@@ -137,6 +189,30 @@ const WildfireMap: React.FC<WildfireMapProps> = ({ onDataRefresh }) => {
   const filteredInstitutions = showInstitutions 
     ? educationalInstitutions.filter(inst => institutionFilters.includes(inst.type))
     : [];
+
+  const handleEditInstitution = () => {
+    if (selectedInstitution) {
+      setIsModalOpen(true);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleSaveInstitution = async () => {
+    setIsModalOpen(false);
+    // 데이터 다시 로드하여 업데이트된 정보 반영
+    const data = await fetchEducationalInstitutions();
+    setEducationalInstitutions(data);
+    // 선택된 학교 정보 업데이트
+    if (selectedInstitution) {
+      const updated = data.find(item => item.id === selectedInstitution.id);
+      if (updated) {
+        setSelectedInstitution(updated);
+      }
+    }
+  };
 
   return isLoaded ? (
     <div className="flex flex-col w-full">
@@ -294,15 +370,22 @@ const WildfireMap: React.FC<WildfireMapProps> = ({ onDataRefresh }) => {
           ))}
 
           {filteredInstitutions.map((institution) => (
-            <Marker
-              key={institution.id}
-              position={{ lat: institution.latitude, lng: institution.longitude }}
-              icon={getEducationMarkerIcon(institution.type)}
-              onClick={() => {
-                setSelectedInstitution(institution);
-                setSelectedFire(null);
-              }}
-            />
+            <React.Fragment key={institution.id}>
+              <Marker
+                position={{ lat: institution.latitude, lng: institution.longitude }}
+                icon={getEducationMarkerIcon(institution)}
+                onClick={() => {
+                  setSelectedInstitution(institution);
+                  setSelectedFire(null);
+                }}
+              />
+              {/* 모든 학교에 운영 상태에 따른 스타일 적용 */}
+              <Circle
+                center={{ lat: institution.latitude, lng: institution.longitude }}
+                radius={institution.isClosed ? 150 : institution.isOnlineClass ? 120 : 80} // 상태에 따라 다른 반경
+                options={getStatusMarkerStyle(institution)}
+              />
+            </React.Fragment>
           ))}
 
           {selectedFire && (
@@ -328,15 +411,60 @@ const WildfireMap: React.FC<WildfireMapProps> = ({ onDataRefresh }) => {
               <div className="p-2 max-w-xs">
                 <h3 className="text-lg font-semibold mt-0" style={{ color: getEducationLabelColor(selectedInstitution.type) }}>{selectedInstitution.name}</h3>
                 <p className="my-1 text-sm">유형: {selectedInstitution.type}</p>
-                <p className="my-1 text-sm">주소: {selectedInstitution.address}</p>
+                <p className="my-1 text-sm">주소: {selectedInstitution.address || '정보 없음'}</p>
                 {selectedInstitution.contact && (
                   <p className="my-1 text-sm">연락처: {selectedInstitution.contact}</p>
                 )}
+                <div className="mt-2 border-t border-gray-200 pt-2">
+                  <p className="my-1 text-sm">
+                    <span className="font-semibold">운영 상태: </span>
+                    {selectedInstitution.isClosed ? (
+                      <span className="text-red-600 font-medium">휴업 중</span>
+                    ) : selectedInstitution.isOnlineClass ? (
+                      <span className="text-blue-600 font-medium">온라인 수업</span>
+                    ) : (
+                      <span className="text-green-600 font-medium">정상 운영</span>
+                    )}
+                  </p>
+                  <p className="my-1 text-sm">
+                    <span className="font-semibold">위치 정보: </span>
+                    <span className="text-gray-700">
+                      {selectedInstitution.latitude.toFixed(6)}, {selectedInstitution.longitude.toFixed(6)}
+                    </span>
+                  </p>
+                  <p className="my-1 text-sm">
+                    <span className="font-semibold">마지막 업데이트: </span>
+                    <span className="text-gray-700">
+                      {formatDate(selectedInstitution.updatedAt)}
+                    </span>
+                  </p>
+                  <p className="my-1 text-sm">
+                    <span className="font-semibold">ID: </span>
+                    <span className="text-xs text-gray-500">{selectedInstitution.id}</span>
+                  </p>
+                  <div className="mt-3 text-center">
+                    <button
+                      onClick={handleEditInstitution}
+                      className="inline-block px-3 py-1 bg-blue-500 text-white text-xs font-medium rounded hover:bg-blue-600 transition-colors"
+                    >
+                      정보 수정
+                    </button>
+                  </div>
+                </div>
               </div>
             </InfoWindow>
           )}
         </GoogleMap>
       </div>
+
+      {isModalOpen && selectedInstitution && (
+        <SchoolModal
+          school={selectedInstitution}
+          isAddMode={false}
+          onClose={handleCloseModal}
+          onSave={handleSaveInstitution}
+        />
+      )}
     </div>
   ) : <div className="text-center py-4">지도 로딩 중...</div>;
 };

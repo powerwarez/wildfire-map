@@ -3,13 +3,21 @@ import { supabase } from '../lib/supabase';
 
 export const fetchEducationalInstitutions = async (): Promise<EducationalInstitution[]> => {
   try {
+    console.log('Supabase 교육기관 데이터 요청 시작');
+    
+    // Supabase 클라이언트가 제대로 초기화되었는지 확인
+    if (!supabase) {
+      console.error('Supabase 클라이언트가 초기화되지 않았습니다.');
+      return [];
+    }
+    
     const { data, error } = await supabase
       .from('educational_institutions')
-      .select('*');
+      .select('id, name, type, latitude, longitude, address, contact, is_closed, is_online_class, created_at, updated_at');
     
     if (error) {
       console.error('교육기관 데이터를 가져오는 중 오류 발생:', error);
-      throw new Error('데이터베이스 로드에 오류가 있습니다.');
+      return []; // 오류 발생 시 빈 배열 반환
     }
     
     if (!data || data.length === 0) {
@@ -17,9 +25,11 @@ export const fetchEducationalInstitutions = async (): Promise<EducationalInstitu
       return [];
     }
     
+    console.log(`Supabase에서 ${data.length}개의 교육기관 데이터 로드 완료`);
+    
     // Supabase의 데이터를 EducationalInstitution 타입으로 변환
     return data.map(item => ({
-      id: item.id,
+      id: item.id || `temp-${Math.random().toString(36).substr(2, 9)}`,
       name: item.name,
       type: mapToEducationalInstitutionType(item.type),
       latitude: item.latitude,
@@ -27,17 +37,25 @@ export const fetchEducationalInstitutions = async (): Promise<EducationalInstitu
       address: item.address,
       contact: item.contact,
       isClosed: item.is_closed,
-      isOnlineClass: item.is_online_class
+      isOnlineClass: item.is_online_class,
+      createdAt: item.created_at,
+      updatedAt: item.updated_at
     }));
   } catch (error) {
     console.error('교육기관 데이터를 가져오는 중 예외 발생:', error);
-    throw new Error('데이터베이스 로드에 오류가 있습니다.');
+    return []; // 예외 발생 시 빈 배열 반환
   }
 };
 
 // 새로운 교육기관을 Supabase에 추가하는 함수
 export const addEducationalInstitution = async (institution: Omit<EducationalInstitution, 'id'>): Promise<EducationalInstitution | null> => {
   try {
+    // Supabase 클라이언트가 제대로 초기화되었는지 확인
+    if (!supabase) {
+      console.error('Supabase 클라이언트가 초기화되지 않았습니다.');
+      throw new Error('데이터베이스 연결에 실패했습니다.');
+    }
+    
     // Supabase에 맞게 데이터 변환
     const supabaseData = {
       name: institution.name,
@@ -58,7 +76,11 @@ export const addEducationalInstitution = async (institution: Omit<EducationalIns
     
     if (error) {
       console.error('교육기관 추가 중 오류 발생:', error);
-      return null;
+      throw new Error(error.message);
+    }
+    
+    if (!data) {
+      throw new Error('교육기관 추가 후 데이터를 받아오지 못했습니다.');
     }
     
     return {
@@ -70,11 +92,13 @@ export const addEducationalInstitution = async (institution: Omit<EducationalIns
       address: data.address,
       contact: data.contact,
       isClosed: data.is_closed,
-      isOnlineClass: data.is_online_class
+      isOnlineClass: data.is_online_class,
+      createdAt: data.created_at,
+      updatedAt: data.updated_at
     };
   } catch (error) {
     console.error('교육기관 추가 중 예외 발생:', error);
-    return null;
+    throw error; // 상위 컴포넌트에서 처리할 수 있도록 오류 전파
   }
 };
 
@@ -84,6 +108,12 @@ export const updateEducationalInstitution = async (
   updates: Partial<Omit<EducationalInstitution, 'id'>>
 ): Promise<boolean> => {
   try {
+    // Supabase 클라이언트가 제대로 초기화되었는지 확인
+    if (!supabase) {
+      console.error('Supabase 클라이언트가 초기화되지 않았습니다.');
+      throw new Error('데이터베이스 연결에 실패했습니다.');
+    }
+    
     // Supabase에 맞게 데이터 변환
     const supabaseData: Record<string, string | number | boolean> = {};
     
@@ -103,13 +133,13 @@ export const updateEducationalInstitution = async (
     
     if (error) {
       console.error('교육기관 업데이트 중 오류 발생:', error);
-      return false;
+      throw new Error(error.message);
     }
     
     return true;
   } catch (error) {
     console.error('교육기관 업데이트 중 예외 발생:', error);
-    return false;
+    throw error; // 상위 컴포넌트에서 처리할 수 있도록 오류 전파
   }
 };
 

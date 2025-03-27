@@ -24,6 +24,7 @@ const SchoolModal: React.FC<SchoolModalProps> = ({ school, isAddMode, onClose, o
   const [formData, setFormData] = useState<Omit<EducationalInstitution, 'id'>>(defaultFormState);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isGeocoding, setIsGeocoding] = useState<boolean>(false);
 
   useEffect(() => {
     if (!isAddMode && school) {
@@ -54,6 +55,43 @@ const SchoolModal: React.FC<SchoolModalProps> = ({ school, isAddMode, onClose, o
       setFormData({ ...formData, [name]: parseFloat(value) || 0 });
     } else {
       setFormData({ ...formData, [name]: value });
+    }
+  };
+
+  const geocodeAddress = async () => {
+    if (!formData.address) {
+      setErrorMessage('주소를 입력해주세요.');
+      return;
+    }
+
+    setIsGeocoding(true);
+    setErrorMessage(null);
+
+    try {
+      // Google Maps Geocoding API를 사용하여 주소를 좌표로 변환
+      const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+      const encodedAddress = encodeURIComponent(formData.address);
+      const response = await fetch(
+        `https://maps.googleapis.com/maps/api/geocode/json?address=${encodedAddress}&key=${apiKey}`
+      );
+      
+      const data = await response.json();
+      
+      if (data.status === 'OK' && data.results && data.results.length > 0) {
+        const location = data.results[0].geometry.location;
+        setFormData({
+          ...formData,
+          latitude: location.lat,
+          longitude: location.lng
+        });
+      } else {
+        setErrorMessage(`주소를 찾을 수 없습니다: ${data.status}`);
+      }
+    } catch (error) {
+      setErrorMessage('주소 검색 중 오류가 발생했습니다.');
+      console.error('Geocoding error:', error);
+    } finally {
+      setIsGeocoding(false);
     }
   };
 
@@ -136,6 +174,37 @@ const SchoolModal: React.FC<SchoolModalProps> = ({ school, isAddMode, onClose, o
               </select>
             </div>
             
+            <div className="mb-4">
+              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="address">
+                주소
+              </label>
+              <div className="flex">
+                <input 
+                  type="text"
+                  id="address"
+                  name="address"
+                  value={formData.address}
+                  onChange={handleChange}
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                />
+                <button 
+                  type="button" 
+                  onClick={geocodeAddress}
+                  disabled={isGeocoding}
+                  className="ml-2 bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded"
+                >
+                  {isGeocoding ? (
+                    <div className="flex items-center">
+                      <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
+                      <span>검색중</span>
+                    </div>
+                  ) : (
+                    '좌표검색'
+                  )}
+                </button>
+              </div>
+            </div>
+            
             <div className="flex mb-4">
               <div className="w-1/2 mr-2">
                 <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="latitude">
@@ -167,20 +236,6 @@ const SchoolModal: React.FC<SchoolModalProps> = ({ school, isAddMode, onClose, o
                   required
                 />
               </div>
-            </div>
-            
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="address">
-                주소
-              </label>
-              <input 
-                type="text"
-                id="address"
-                name="address"
-                value={formData.address}
-                onChange={handleChange}
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              />
             </div>
             
             <div className="mb-4">
