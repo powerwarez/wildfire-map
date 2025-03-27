@@ -53,33 +53,33 @@ const WeatherInfo: React.FC = () => {
     fetchWeatherData();
   }, []);
 
-  if (loading) return <div>날씨 정보 로딩 중...</div>;
-  if (error) return <div className="error-message">{error}</div>;
+  if (loading) return <div className="p-4 text-center">날씨 정보 로딩 중...</div>;
+  if (error) return <div className="p-3 bg-red-50 text-red-700 rounded-md text-center">{error}</div>;
 
   return (
-    <div className="weather-info-container">
-      <div className="weather-card">
-        <div className="weather-header">
-          <h3>경북 날씨 정보</h3>
-          <button className="refresh-button" onClick={() => window.location.reload()}>
+    <div className="mb-5 overflow-auto max-h-[300px]">
+      <div className="bg-gray-50 rounded-lg p-4 shadow-sm">
+        <div className="flex justify-between items-center mb-3">
+          <h3 className="text-lg font-semibold text-gray-800">경북 날씨 정보</h3>
+          <button className="bg-transparent border-none cursor-pointer text-lg" onClick={() => window.location.reload()}>
             <span role="img" aria-label="새로고침">🔄</span>
           </button>
         </div>
 
-        <div className="weather-detail">
-          <p><strong>지역:</strong> {weatherData.region}</p>
-          <p><strong>기온:</strong> {weatherData.temperature}</p>
-          <p><strong>풍속:</strong> {weatherData.windSpeed}</p>
-          <p><strong>풍향:</strong> {weatherData.windDirection}</p>
-          <p><strong>습도:</strong> {weatherData.humidity}</p>
+        <div className="space-y-2">
+          <p className="text-sm"><span className="font-medium">지역:</span> {weatherData.region}</p>
+          <p className="text-sm"><span className="font-medium">기온:</span> {weatherData.temperature}</p>
+          <p className="text-sm"><span className="font-medium">풍속:</span> {weatherData.windSpeed}</p>
+          <p className="text-sm"><span className="font-medium">풍향:</span> {weatherData.windDirection}</p>
+          <p className="text-sm"><span className="font-medium">습도:</span> {weatherData.humidity}</p>
         </div>
 
-        <div className="special-note">
-          <p><strong>특이사항:</strong> {weatherData.specialNote}</p>
+        <div className="mt-3 p-2.5 bg-yellow-50 rounded-md">
+          <p className="text-sm"><span className="font-medium">특이사항:</span> {weatherData.specialNote}</p>
         </div>
 
-        <div className="weather-footer">
-          <p className="note">
+        <div className="mt-3 text-center text-xs text-gray-500">
+          <p>
             <span role="img" aria-label="주의">⚠️</span> 
             실제 날씨는 기상청 API 등을 연동해야 합니다.
           </p>

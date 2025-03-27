@@ -63,23 +63,23 @@ const NewsSection: React.FC = () => {
   // 뉴스 아이템 렌더링
   const renderNewsItems = () => {
     if (loading) {
-      return <p>뉴스를 불러오는 중...</p>;
+      return <p className="py-4 text-center text-gray-600">뉴스를 불러오는 중...</p>;
     }
     
     if (newsItems.length === 0) {
-      return <p>산불 관련 뉴스가 없습니다</p>;
+      return <p className="py-4 text-center text-gray-600">산불 관련 뉴스가 없습니다</p>;
     }
     
     return (
-      <ul className="news-list">
+      <ul className="list-none p-0 m-0">
         {newsItems.map((item, index) => (
-          <li key={index} className="news-item">
-            <a href={item.link} target="_blank" rel="noopener noreferrer" className="news-title">
+          <li key={index} className="py-2.5 border-b border-gray-100 last:border-b-0">
+            <a href={item.link} target="_blank" rel="noopener noreferrer" className="block text-blue-600 font-semibold mb-1.5 hover:underline">
               {item.title}
             </a>
-            <div className="news-meta">
-              <span className="news-source">{item.source}</span>
-              <span className="news-date">{item.pubDate}</span>
+            <div className="flex justify-between text-xs text-gray-500">
+              <span className="font-medium">{item.source}</span>
+              <span>{item.pubDate}</span>
             </div>
           </li>
         ))}
@@ -88,8 +88,8 @@ const NewsSection: React.FC = () => {
   };
 
   return (
-    <div className="news-section">
-      <h2>경북 산불 관련 뉴스</h2>
+    <div className="bg-white rounded-lg shadow-sm p-4 overflow-y-auto max-h-[300px]">
+      <h2 className="text-xl font-semibold text-gray-800 mb-4 pb-1.5 border-b-2 border-gray-100">경북 산불 관련 뉴스</h2>
       {renderNewsItems()}
     </div>
   );
