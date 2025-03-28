@@ -39,7 +39,10 @@ const WeatherPanel: React.FC = () => {
         <h2 className="text-xl font-bold text-gray-800">기상 정보</h2>
         <select 
           value={selectedLocation}
-          onChange={(e) => setSelectedLocation(e.target.value)}
+          onChange={(e) => {
+            console.log('선택된 지역 변경:', e.target.value, WEATHER_LOCATIONS.find(loc => loc.stn === e.target.value)?.name);
+            setSelectedLocation(e.target.value);
+          }}
           className="px-3 py-1 border border-gray-300 rounded text-sm"
         >
           {WEATHER_LOCATIONS.map((location) => (

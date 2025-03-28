@@ -3,14 +3,20 @@ const iconv = require('iconv-lite');
 
 // 기상관측소 목록
 const WEATHER_LOCATIONS = [
+  { stn: '115', name: '울릉도' },
+  { stn: '130', name: '울진' },
   { stn: '136', name: '안동' },
-  { stn: '159', name: '부산' },
-  { stn: '143', name: '대구' },
-  { stn: '156', name: '광주' },
-  { stn: '133', name: '대전' },
-  { stn: '105', name: '강릉' },
-  { stn: '108', name: '서울' },
-  { stn: '184', name: '제주' }
+  { stn: '137', name: '상주' },
+  { stn: '138', name: '포항' },
+  { stn: '271', name: '봉화' },
+  { stn: '272', name: '영주' },
+  { stn: '273', name: '문경' },
+  { stn: '276', name: '청송' },
+  { stn: '277', name: '영덕' },
+  { stn: '278', name: '의성' },
+  { stn: '279', name: '구미' },
+  { stn: '281', name: '영천' },
+  { stn: '283', name: '경주' }
 ];
 
 exports.handler = async function(event) {
@@ -29,6 +35,12 @@ exports.handler = async function(event) {
   if (useTestData) {
     console.log('Using test weather data for station:', stn, '(reason:', isDebug ? 'debug mode' : 'no API key', ')');
     const location = WEATHER_LOCATIONS.find(loc => loc.stn === stn) || WEATHER_LOCATIONS[0];
+    console.log('Selected location:', location);
+    
+    // 지역을 찾지 못한 경우 전체 목록에서 확인
+    if (!location || location.stn !== stn) {
+      console.log('Location not found in WEATHER_LOCATIONS. Available locations:', WEATHER_LOCATIONS);
+    }
     
     // 현재 날짜 정보
     const today = new Date();
@@ -47,6 +59,8 @@ exports.handler = async function(event) {
       ta_max: Math.round((20 + Math.random() * 10) * 10) / 10,
       ta_min: Math.round((10 + Math.random() * 5) * 10) / 10
     };
+    
+    console.log('Generated test data:', testData);
     
     return {
       statusCode: 200,
