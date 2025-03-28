@@ -27,13 +27,24 @@ exports.handler = async function(event) {
   console.log('API Key available:', apiKey ? 'Yes' : 'No');
   console.log('Environment variables:', Object.keys(process.env).filter(key => key.includes('KMA') || key.includes('VITE')));
   
-  // 로컬 개발 환경이거나 디버그 모드인 경우 테스트 데이터 사용
+  // 디버그 모드인 경우만 테스트 데이터 사용
   const isDebug = event.queryStringParameters.debug === 'true';
-  // API 키가 없거나 디버그 모드이면 테스트 데이터 사용
-  const useTestData = isDebug || !apiKey;
+  // API 키가 없는 경우 오류 반환
+  if (!apiKey && !isDebug) {
+    console.error('API 키가 설정되어 있지 않습니다.');
+    return {
+      statusCode: 400,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ error: 'API 키가 설정되어 있지 않습니다.' })
+    };
+  }
   
-  if (useTestData) {
-    console.log('Using test weather data for station:', stn, '(reason:', isDebug ? 'debug mode' : 'no API key', ')');
+  // 디버그 모드에서만 테스트 데이터 사용
+  if (isDebug) {
+    console.log('Using test weather data for station:', stn, '(reason: debug mode)');
     const location = WEATHER_LOCATIONS.find(loc => loc.stn === stn) || WEATHER_LOCATIONS[0];
     console.log('Selected location:', location);
     

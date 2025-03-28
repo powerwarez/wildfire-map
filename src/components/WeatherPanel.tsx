@@ -17,10 +17,20 @@ const WeatherPanel: React.FC = () => {
     
     try {
       const data = await fetchWeatherData(stn);
+      
+      if (!data) {
+        throw new Error('날씨 정보를 불러올 수 없습니다.');
+      }
+      
       setWeatherData(data);
-    } catch (err) {
-      console.error('날씨 데이터 로딩 오류:', err);
-      setError('날씨 정보를 불러오는데 실패했습니다.');
+    } catch (error: any) {
+      console.error('날씨 데이터 로딩 오류:', error);
+      if (error.response && error.response.data && error.response.data.error) {
+        setError(`날씨 정보를 불러올 수 없습니다: ${error.response.data.error}`);
+      } else {
+        setError('날씨 정보를 불러올 수 없습니다. 인터넷 연결을 확인하거나 나중에 다시 시도해 주세요.');
+      }
+      setWeatherData(null);
     } finally {
       setLoading(false);
     }
@@ -58,8 +68,15 @@ const WeatherPanel: React.FC = () => {
           <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
         </div>
       ) : error ? (
-        <div className="bg-red-100 text-red-700 p-3 rounded">
+        <div className="bg-red-100 text-red-700 p-4 rounded text-center">
+          <p className="font-medium mb-2">⚠️ 오류</p>
           <p>{error}</p>
+          <button 
+            onClick={() => loadWeatherData(selectedLocation)}
+            className="mt-3 px-4 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600"
+          >
+            다시 시도
+          </button>
         </div>
       ) : !weatherData ? (
         <div className="text-center py-4 text-gray-500">

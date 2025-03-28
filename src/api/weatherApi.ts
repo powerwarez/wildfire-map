@@ -44,8 +44,8 @@ export const WEATHER_LOCATIONS: WeatherLocation[] = [
 // 기상청 API에서 날씨 데이터 가져오기
 export const fetchWeatherData = async (stn: string): Promise<WeatherData | null> => {
   try {
-    // 항상 테스트 데이터 사용 (디버깅 목적)
-    const alwaysUseTestData = true;
+    // 테스트 데이터 사용하지 않음
+    const alwaysUseTestData = false;
     
     // Netlify 프록시 함수를 통해 데이터 가져오기
     const proxyUrl = `/.netlify/functions/weather-proxy?stn=${stn}`;
