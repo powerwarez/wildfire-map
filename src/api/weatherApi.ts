@@ -43,16 +43,19 @@ export const WEATHER_LOCATIONS: WeatherLocation[] = [
 // 기상청 API에서 날씨 데이터 가져오기
 export const fetchWeatherData = async (stn: string): Promise<WeatherData | null> => {
   try {
-    // 개발 환경인지 확인
-    const isDevelopment = import.meta.env.DEV === true;
+    // 항상 테스트 데이터 사용 (디버깅 목적)
+    const alwaysUseTestData = true;
     
     // Netlify 프록시 함수를 통해 데이터 가져오기
     const proxyUrl = `/.netlify/functions/weather-proxy?stn=${stn}`;
     
-    // 개발 환경이면 debug 파라미터 추가 (테스트 데이터 사용)
-    const url = isDevelopment ? `${proxyUrl}&debug=true` : proxyUrl;
+    // 개발 환경이나 테스트 데이터 사용 설정이면 debug 파라미터 추가
+    const url = alwaysUseTestData ? `${proxyUrl}&debug=true` : proxyUrl;
     
+    console.log(`항상 테스트 데이터 사용: ${alwaysUseTestData ? 'Yes' : 'No'}`);
+    console.log(`API 키 설정됨: ${import.meta.env.VITE_KMA_AUTH_KEY ? 'Yes' : 'No'}`);
     console.log(`Fetching weather data from: ${url}`);
+    
     const response = await axios.get(url);
     
     // 이미 JSON 형식으로 파싱된 데이터가 반환됨
