@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import WildfireMap from '../components/WildfireMap';
-// import WeatherInfo from '../components/WeatherInfo';
+import WeatherPanel from '../components/WeatherPanel';
 // import NewsSection from '../components/NewsSection';
 
 const HomePage: React.FC = () => {
@@ -29,10 +29,10 @@ const HomePage: React.FC = () => {
         <div className="flex-grow min-w-[65%]">
           <WildfireMap onDataRefresh={updateRefreshTime} />
         </div>
-        {/* <div className="flex-1 min-w-[280px] max-w-xs flex flex-col sticky top-5 max-h-[calc(100vh-40px)]">
-          <WeatherInfo />
-          <NewsSection />
-        </div> */}
+        <div className="flex-1 min-w-[280px] max-w-xs flex flex-col sticky top-5 max-h-[calc(100vh-40px)]">
+          <WeatherPanel />
+          {/* <NewsSection /> */}
+        </div>
       </div>
       <footer className="mt-8 text-center text-sm text-gray-500">
         <p>© 2025 산불 대응 현황도 | 데이터 출처: NASA FIRMS, 기상청 | 마지막 업데이트: {lastRefreshed}</p>
