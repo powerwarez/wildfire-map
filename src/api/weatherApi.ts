@@ -43,46 +43,37 @@ export const WEATHER_LOCATIONS: WeatherLocation[] = [
 // 기상청 API에서 날씨 데이터 가져오기
 export const fetchWeatherData = async (stn: string): Promise<WeatherData | null> => {
   try {
-    const apiKey = import.meta.env.VITE_KMA_AUTH_KEY;
-    const url = `https://apihub.kma.go.kr/api/typ01/url/kma_sfcdd.php?stn=${stn}&authKey=${apiKey}`;
-
+    // 개발 환경인지 확인
+    const isDevelopment = import.meta.env.DEV === true;
+    
+    // Netlify 프록시 함수를 통해 데이터 가져오기
+    const proxyUrl = `/.netlify/functions/weather-proxy?stn=${stn}`;
+    
+    // 개발 환경이면 debug 파라미터 추가 (테스트 데이터 사용)
+    const url = isDevelopment ? `${proxyUrl}&debug=true` : proxyUrl;
+    
+    console.log(`Fetching weather data from: ${url}`);
     const response = await axios.get(url);
+    
+    // 이미 JSON 형식으로 파싱된 데이터가 반환됨
     const data = response.data;
-
-    // API 응답이 문자열로 반환되므로 파싱 필요
-    const lines = data.split('\n');
+    console.log('Weather data received:', data);
     
-    // 데이터 행 찾기
-    const dataLine = lines.find((line: string) => line.includes(new Date().getFullYear().toString().substring(2)));
-    
-    if (!dataLine) {
-      console.error('날씨 데이터를 찾을 수 없습니다.');
+    // 오류 응답 체크
+    if (data.error) {
+      console.error('날씨 데이터 오류:', data.error);
       return null;
     }
     
-    // 공백을 기준으로 데이터 분리
-    const columns = dataLine.trim().split(/\s+/);
+    // 지점명이 없는 경우 지역 목록에서 가져오기
+    if (!data.stnName) {
+      const location = WEATHER_LOCATIONS.find(loc => loc.stn === stn);
+      if (location) {
+        data.stnName = location.name;
+      }
+    }
     
-    // 지점명 찾기
-    const location = WEATHER_LOCATIONS.find(loc => loc.stn === stn);
-    
-    // 날짜 데이터 추출 (YYYYMMDD 형식에서 YYYY-MM-DD로 변환)
-    const date = columns[0];
-    const formattedDate = `${date.substring(0, 4)}-${date.substring(4, 6)}-${date.substring(6, 8)}`;
-    
-    // 필요한 데이터 추출하여 반환
-    return {
-      tm: formattedDate,
-      stn: columns[1],
-      stnName: location?.name || '알 수 없음',
-      ws_avg: parseFloat(columns[2]) === -9.0 ? 0 : parseFloat(columns[2]),
-      wd_max: parseInt(columns[4]) === -9 ? 0 : parseInt(columns[4]),
-      ws_max: parseFloat(columns[5]) === -9.0 ? 0 : parseFloat(columns[5]),
-      ws_max_tm: columns[6] === '-9' ? '--:--' : `${columns[6].substring(0, 2)}:${columns[6].substring(2, 4)}`,
-      ta_avg: parseFloat(columns[10]) === -99.0 ? 0 : parseFloat(columns[10]),
-      ta_max: parseFloat(columns[11]) === -99.0 ? 0 : parseFloat(columns[11]),
-      ta_min: parseFloat(columns[13]) === -99.0 ? 0 : parseFloat(columns[13])
-    };
+    return data as WeatherData;
   } catch (error) {
     console.error('날씨 데이터를 가져오는 중 오류 발생:', error);
     return null;
