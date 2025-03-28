@@ -57,7 +57,8 @@ exports.handler = async function(event) {
       ws_max_tm: `${String(Math.floor(Math.random() * 24)).padStart(2, '0')}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')}`,
       ta_avg: Math.round((15 + Math.random() * 10) * 10) / 10,
       ta_max: Math.round((20 + Math.random() * 10) * 10) / 10,
-      ta_min: Math.round((10 + Math.random() * 5) * 10) / 10
+      ta_min: Math.round((10 + Math.random() * 5) * 10) / 10,
+      hm_min: Math.floor(30 + Math.random() * 40) // 최저습도 (30~70%)
     };
     
     console.log('Generated test data:', testData);
@@ -211,6 +212,7 @@ function parseWeatherData(textData) {
     if (result.WS_Avg) result.ws_avg = parseFloat(result.WS_Avg);
     if (result.WS_Max) result.ws_max = parseFloat(result.WS_Max);
     if (result.WD_Max) result.wd_max = parseInt(result.WD_Max);
+    if (result.HM_Min) result.hm_min = parseInt(result.HM_Min);
     
     // 관측소 정보 추가
     const location = WEATHER_LOCATIONS.find(loc => loc.stn === result.STN) || { name: '알 수 없음' };

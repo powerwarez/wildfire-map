@@ -97,9 +97,15 @@ const WeatherPanel: React.FC = () => {
                 <p className="font-semibold">{weatherData.ws_max} m/s ({weatherData.ws_max_tm})</p>
               </div>
             </div>
-            <div>
-              <p className="text-xs text-gray-500">최대 풍향</p>
-              <p className="font-semibold">{getWindDirectionString(weatherData.wd_max)} ({weatherData.wd_max}°)</p>
+            <div className="flex justify-between mb-2">
+              <div>
+                <p className="text-xs text-gray-500">최대 풍향</p>
+                <p className="font-semibold">{getWindDirectionString(weatherData.wd_max)} ({weatherData.wd_max}°)</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500">최저 습도</p>
+                <p className="font-semibold">{weatherData.hm_min}%</p>
+              </div>
             </div>
           </div>
           

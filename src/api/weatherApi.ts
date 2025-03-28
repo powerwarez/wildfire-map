@@ -20,6 +20,7 @@ export interface WeatherData {
   ta_avg: number;      // 일 평균기온 (C)
   ta_max: number;      // 최고기온 (C)
   ta_min: number;      // 최저기온 (C)
+  hm_min: number;      // 최저습도 (%)
 }
 
 // 지역 목록
