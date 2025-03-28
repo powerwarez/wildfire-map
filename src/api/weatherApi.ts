@@ -44,7 +44,7 @@ export const WEATHER_LOCATIONS: WeatherLocation[] = [
 export const fetchWeatherData = async (stn: string): Promise<WeatherData | null> => {
   try {
     const apiKey = import.meta.env.VITE_KMA_AUTH_KEY;
-    const url = `https://apihub.kma.go.kr/api/typ01/url/kma_sfcdd3.php?stn=${stn}&authKey=${apiKey}`;
+    const url = `https://apihub.kma.go.kr/api/typ01/url/kma_sfcdd.php?stn=${stn}&authKey=${apiKey}`;
 
     const response = await axios.get(url);
     const data = response.data;
