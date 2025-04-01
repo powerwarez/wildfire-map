@@ -1,20 +1,30 @@
 import axios from 'axios';
 import { WildfireData } from '../types';
 
-// NASA FIRMS API 사용 - 한국(KOR) 국가 코드 사용
-const getThreeDaysAgoDate = (): string => {
+// 선택한 일수만큼 이전 날짜 계산
+const getDateXDaysAgo = (days: number): string => {
   const date = new Date();
-  date.setDate(date.getDate() - 3);
+  date.setDate(date.getDate() - days);
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
 };
 
-const NASA_FIRMS_API_URL = `https://firms.modaps.eosdis.nasa.gov/api/country/csv/8120ee6035cfa3d6eeaf6e8d84e8b9ab/VIIRS_SNPP_NRT/KOR/10/${getThreeDaysAgoDate()}`;
+// 기간 타입 정의
+export type DateRange = 1 | 3 | 7 | 30;
 
-export const fetchWildfireData = async (): Promise<WildfireData[]> => {
+// NASA FIRMS API URL 생성 함수
+const getNasaFirmsApiUrl = (days: DateRange): string => {
+  const startDate = getDateXDaysAgo(days);
+  // days 파라미터를 10 대신 사용 (API가 요청한 일수보다 더 많은 데이터를 반환할 수 있도록)
+  const requestDays = days === 30 ? 35 : days + 3;
+  return `https://firms.modaps.eosdis.nasa.gov/api/country/csv/8120ee6035cfa3d6eeaf6e8d84e8b9ab/VIIRS_SNPP_NRT/KOR/${requestDays}/${startDate}`;
+};
+
+export const fetchWildfireData = async (days: DateRange = 3): Promise<WildfireData[]> => {
   try {
+    const NASA_FIRMS_API_URL = getNasaFirmsApiUrl(days);
     console.log('데이터 요청 시작:', NASA_FIRMS_API_URL);
     const response = await axios.get(NASA_FIRMS_API_URL);
     console.log('데이터 받음, 길이:', response.data.length);

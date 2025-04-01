@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { GoogleMap, useJsApiLoader, Marker, Circle, InfoWindow } from '@react-google-maps/api';
-import { fetchWildfireData } from '../api/wildfireApi';
+import { fetchWildfireData, DateRange } from '../api/wildfireApi';
 import { fetchEducationalInstitutions } from '../api/educationApi';
 import { WildfireData, EducationalInstitution, EducationalInstitutionType } from '../types';
 import SchoolModal from './SchoolModal';
@@ -128,6 +128,7 @@ const WildfireMap: React.FC<WildfireMapProps> = ({ onDataRefresh }) => {
   const [selectedInstitution, setSelectedInstitution] = useState<EducationalInstitution | null>(null);
   const [mapRef, setMapRef] = useState<google.maps.Map | null>(null);
   const [showInstitutions, setShowInstitutions] = useState<boolean>(false);
+  const [dateRange, setDateRange] = useState<DateRange>(3);
   const [institutionFilters, setInstitutionFilters] = useState<EducationalInstitutionType[]>([
     EducationalInstitutionType.ELEMENTARY_SCHOOL,
     EducationalInstitutionType.MIDDLE_SCHOOL,
@@ -144,7 +145,7 @@ const WildfireMap: React.FC<WildfireMapProps> = ({ onDataRefresh }) => {
 
   useEffect(() => {
     const loadWildfireData = async () => {
-      const data = await fetchWildfireData();
+      const data = await fetchWildfireData(dateRange);
       setWildfires(data);
       
       // 데이터 로드 후 onDataRefresh 콜백 호출
@@ -159,7 +160,7 @@ const WildfireMap: React.FC<WildfireMapProps> = ({ onDataRefresh }) => {
     const interval = setInterval(loadWildfireData, 300000); // 5분 간격
     
     return () => clearInterval(interval);
-  }, [onDataRefresh]);
+  }, [onDataRefresh, dateRange]);
 
   useEffect(() => {
     const loadEducationalInstitutions = async () => {
@@ -244,6 +245,18 @@ const WildfireMap: React.FC<WildfireMapProps> = ({ onDataRefresh }) => {
             <option value="0">모든 산불</option>
             <option value="3">중간 강도 이상</option>
             <option value="5">높은 강도</option>
+          </select>
+          <select 
+            className="px-3 py-1 bg-gray-100 border border-gray-300 rounded-md text-sm"
+            value={dateRange}
+            onChange={(e) => {
+              setDateRange(parseInt(e.target.value) as DateRange);
+            }}
+          >
+            <option value={1}>최근 1일</option>
+            <option value={3}>최근 3일</option>
+            <option value={7}>최근 7일</option>
+            <option value={30}>최근 30일</option>
           </select>
         </div>
         
