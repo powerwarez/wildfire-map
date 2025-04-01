@@ -30,7 +30,7 @@ const HomePage: React.FC = () => {
           <WildfireMap onDataRefresh={updateRefreshTime} />
         </div>
         <div className="flex-1 min-w-[280px] max-w-xs flex flex-col sticky top-5 max-h-[calc(100vh-40px)]">
-          <WeatherPanel />
+          {/* <WeatherPanel /> */}
           {/* <NewsSection /> */}
         </div>
       </div>
