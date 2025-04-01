@@ -2,7 +2,16 @@ import axios from 'axios';
 import { WildfireData } from '../types';
 
 // NASA FIRMS API 사용 - 한국(KOR) 국가 코드 사용
-const NASA_FIRMS_API_URL = 'https://firms.modaps.eosdis.nasa.gov/api/country/csv/8120ee6035cfa3d6eeaf6e8d84e8b9ab/VIIRS_SNPP_NRT/KOR/10';
+const getThreeDaysAgoDate = (): string => {
+  const date = new Date();
+  date.setDate(date.getDate() - 3);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+const NASA_FIRMS_API_URL = `https://firms.modaps.eosdis.nasa.gov/api/country/csv/8120ee6035cfa3d6eeaf6e8d84e8b9ab/VIIRS_SNPP_NRT/KOR/10/${getThreeDaysAgoDate()}`;
 
 export const fetchWildfireData = async (): Promise<WildfireData[]> => {
   try {
@@ -83,17 +92,7 @@ export const fetchWildfireData = async (): Promise<WildfireData[]> => {
     
     // 데이터가 없을 경우 예시 데이터 추가
     if (wildfires.length === 0) {
-      console.log('데이터가 없어 예시 데이터 추가');
-      wildfires.push({
-        id: 'example-1',
-        latitude: 36.57,
-        longitude: 128.7,
-        intensity: 2, // 강도 더 작게 조정
-        dateReported: new Date().toISOString().split('T')[0],
-        name: '경북 예시 화재',
-        acresBurned: 50, // 더 작게 조정
-        containment: 0
-      });
+      console.log('데이터가 없음');
     }
     
     return wildfires;
